@@ -883,10 +883,16 @@ function applyTheme(){
   const mc=document.querySelector('meta[name="theme-color"]');
   if(mc)mc.content=S.theme==='light'?'#ffffff':'#0f172a';
 }
+// ---- CHART INSTANCES (deklarasi di sini agar bisa diakses oleh re()) ----
+let _chartIdCounter=0;
+const _chartInstances={};
+function _destroyChart(id){if(_chartInstances[id]){_chartInstances[id].destroy();delete _chartInstances[id];}}
+function _isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
+
 // ---- ASYNC DATA LOADER ----
 // Pre-load semua data yang dibutuhkan halaman saat ini ke Cache sebelum render
 async function preloadData(){
-  if(!S.user)return;
+  if(!S.user||!Store.token())return; // Jangan fetch kalau belum login
   const y=S.dash.year,m=S.dash.month,m2=S.dash.monthEnd||m;
   const page=S.page||'dashboard';
   try{
@@ -1050,14 +1056,6 @@ function scopeTabs(cur,pfx){
 }
 
 // ---- CHART.JS HELPERS ----
-let _chartIdCounter=0;
-const _chartInstances={};
-
-function _destroyChart(id){
-  if(_chartInstances[id]){_chartInstances[id].destroy();delete _chartInstances[id];}
-}
-
-function _isDark(){return document.documentElement.getAttribute('data-theme')==='dark';}
 
 function _chartColors(isDark){
   return{
